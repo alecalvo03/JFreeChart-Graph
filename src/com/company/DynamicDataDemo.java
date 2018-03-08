@@ -62,14 +62,17 @@ import java.util.Set;
 
 
 /**
- * A demonstration application showing a time series chart where you can dynamically add
+ * A demonstration application showing a time YawSeries chart where you can dynamically add
  * (random) data by clicking on a button.
  *
  */
 public class DynamicDataDemo extends ApplicationFrame implements ActionListener {
 
-    /** The time series data. */
-    private  static TimeSeries series;
+    /** The time YawSeries data. */
+    private static TimeSeries YawSeries;
+    private static TimeSeries PitchSeries;
+    private static TimeSeries RollSeries;
+
     static ArduinoCom arduinocom;
 
     /** The most recent value added. */
@@ -83,8 +86,12 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     public DynamicDataDemo(final String title) {
 
         super(title);
-        this.series = new TimeSeries("Random Data", Millisecond.class);
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
+        YawSeries = new TimeSeries("Yaw Data", Millisecond.class);
+        PitchSeries = new TimeSeries("Pitch Data", Millisecond.class);
+        RollSeries = new TimeSeries("Roll Data", Millisecond.class);
+        final TimeSeriesCollection dataset = new TimeSeriesCollection(YawSeries);
+        dataset.addSeries(PitchSeries);
+        dataset.addSeries(RollSeries);
         final JFreeChart chart = createChart(dataset);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
@@ -148,7 +155,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
             this.lastValue = this.lastValue * factor;
             final Millisecond now = new Millisecond();
             System.out.println("Now = " + now.toString());
-            this.series.add(new Millisecond(), this.lastValue);
+            this.YawSeries.add(new Millisecond(), this.lastValue);
         }
     }
 
@@ -166,16 +173,37 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         demo.setVisible(true);
         Thread t = new Thread(() ->{
             while (true) {
-                HashMap AcX = DynamicDataDemo.arduinocom.getAcX();
-                if (!AcX.isEmpty()) {
-                    Set set = AcX.entrySet();
+                HashMap Yaw = DynamicDataDemo.arduinocom.getAcX();
+                HashMap Pitch = DynamicDataDemo.arduinocom.getAcY();
+                HashMap Roll = DynamicDataDemo.arduinocom.getAcZ();
+                if (!Yaw.isEmpty()) {
+                    Set set = Yaw.entrySet();
                     Iterator iterator = set.iterator();
                     while (iterator.hasNext()) {
                         Map.Entry mentry = (Map.Entry) iterator.next();
-                        System.out.println(mentry.getValue());
-                        DynamicDataDemo.series.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
+                        //System.out.println(mentry.getValue());
+                        DynamicDataDemo.YawSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
                     }
                 }
+                if (!Pitch.isEmpty()) {
+                    Set set = Pitch.entrySet();
+                    Iterator iterator = set.iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry mentry = (Map.Entry) iterator.next();
+                        //System.out.println(mentry.getValue());
+                        DynamicDataDemo.PitchSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
+                    }
+                }
+                if (!Roll.isEmpty()) {
+                    Set set = Roll.entrySet();
+                    Iterator iterator = set.iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry mentry = (Map.Entry) iterator.next();
+                        //System.out.println(mentry.getValue());
+                        DynamicDataDemo.RollSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
+                    }
+                }
+
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {

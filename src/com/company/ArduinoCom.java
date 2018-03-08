@@ -24,6 +24,7 @@ public class ArduinoCom implements SerialPortEventListener{
     private static final String PUERTO = "COM3";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
+    private int n = 50;
 
     private HashMap<Millisecond,Float> AcX = new HashMap<>();
     private HashMap<Millisecond,Float> AcY = new HashMap<>();
@@ -79,18 +80,34 @@ public class ArduinoCom implements SerialPortEventListener{
     }
 
     private void setRawValues(String[] values){
-        if (values.length != 3) return;
-        try{
-        AcX.put(new Millisecond(), Float.valueOf(values[0]));
-        AcY.put(new Millisecond(), Float.valueOf(values[1]));
-        AcZ.put(new Millisecond(), Float.valueOf(values[2]));
-        }finally {
+        if (n != 0) {
+            n -= 1;
+            return;
+        }
+        try {
+            AcX.put(new Millisecond(), Float.valueOf(values[0]));
+            AcY.put(new Millisecond(), Float.valueOf(values[1]));
+            AcZ.put(new Millisecond(), Float.valueOf(values[2]));
+        }finally{
+
         }
     }
 
-    public HashMap getAcX(){
+    public synchronized HashMap getAcX(){
         HashMap temp = (HashMap) AcX.clone();
         AcX.clear();
+        return temp;
+    }
+
+    public synchronized HashMap getAcY(){
+        HashMap temp = (HashMap) AcY.clone();
+        AcY.clear();
+        return temp;
+    }
+
+    public synchronized HashMap getAcZ(){
+        HashMap temp = (HashMap) AcZ.clone();
+        AcZ.clear();
         return temp;
     }
 
@@ -102,9 +119,8 @@ public class ArduinoCom implements SerialPortEventListener{
         if (serialPortEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
                 String inputLine=input.readLine();
-                //System.out.println(inputLine);
-                // AcX AcY AcZ GyX GyY GyZ
                 System.out.println(inputLine);
+                // AcX AcY AcZ GyX GyY GyZ
                 String[] rawValues = inputLine.split(" ");
                 setRawValues(rawValues);
             } catch (Exception e) {
