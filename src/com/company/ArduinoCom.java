@@ -24,16 +24,18 @@ public class ArduinoCom implements SerialPortEventListener{
     private static final String PUERTO = "COM3";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
+    private JavaSocket sock;
     private int n = 50;
 
     private HashMap<Millisecond,Float> AcX = new HashMap<>();
     private HashMap<Millisecond,Float> AcY = new HashMap<>();
     private HashMap<Millisecond,Float> AcZ = new HashMap<>();
 
-    public void initialize(){
+    public void initialize() throws IOException {
         // Inicializar conexión con Arduino
         CommPortIdentifier puertoID = null;
         Enumeration puertoEnum = CommPortIdentifier.getPortIdentifiers();
+        sock = new JavaSocket();
         while(puertoEnum.hasMoreElements()){
             CommPortIdentifier actual = (CommPortIdentifier) puertoEnum.nextElement();
             if (PUERTO.equals(actual.getName())){
@@ -85,9 +87,9 @@ public class ArduinoCom implements SerialPortEventListener{
             return;
         }
         try {
-            AcX.put(new Millisecond(), Float.valueOf(values[0]));
-            AcY.put(new Millisecond(), Float.valueOf(values[1]));
-            AcZ.put(new Millisecond(), Float.valueOf(values[2]));
+            AcX.put(new Millisecond(), Float.valueOf(values[3]));
+            AcY.put(new Millisecond(), Float.valueOf(values[4]));
+            AcZ.put(new Millisecond(), Float.valueOf(values[5]));
         }finally{
 
         }
@@ -120,6 +122,7 @@ public class ArduinoCom implements SerialPortEventListener{
             try {
                 String inputLine=input.readLine();
                 System.out.println(inputLine);
+                sock.writeToServer(inputLine);
                 // AcX AcY AcZ GyX GyY GyZ
                 String[] rawValues = inputLine.split(" ");
                 setRawValues(rawValues);

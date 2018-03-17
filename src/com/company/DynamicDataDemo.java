@@ -129,13 +129,13 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(-200.0, 200.0);
+        axis.setRange(-1500.0, 1500.0);
         return result;
     }
 
     // ****************************************************************************
     // * JFREECHART DEVELOPER GUIDE                                               *
-    // * The JFreeChart Developer Guide, written by David Gilbert, is available   *
+    // * The JFreeChart Developer Guide, written by Ale Calvo, is available       *
     // * to purchase from Object Refinery Limited:                                *
     // *                                                                          *
     // * http://www.object-refinery.com/jfreechart/guide.html                     *
