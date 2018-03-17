@@ -55,6 +55,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -164,7 +165,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      *
      * @param args  ignored.
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         arduinocom = new ArduinoCom();
         arduinocom.initialize();
         final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");

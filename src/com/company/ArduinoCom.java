@@ -21,11 +21,12 @@ public class ArduinoCom implements SerialPortEventListener{
     private static OutputStream output = null;
     private static BufferedReader input;
     static SerialPort serialPort;
-    private static final String PUERTO = "COM3";
+    private static final String PUERTO = "COM4";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
     private JavaSocket sock;
     private int n = 50;
+    boolean first = true;
 
     private HashMap<Millisecond,Float> AcX = new HashMap<>();
     private HashMap<Millisecond,Float> AcY = new HashMap<>();
@@ -122,7 +123,14 @@ public class ArduinoCom implements SerialPortEventListener{
             try {
                 String inputLine=input.readLine();
                 System.out.println(inputLine);
-                sock.writeToServer(inputLine);
+                if(n == 0) {
+                    if (first){
+                        sock.writeToServer("setstartvalues_" + inputLine);
+                        first = false;
+                    } else {
+                        sock.writeToServer("data_" + inputLine);
+                    }
+                }
                 // AcX AcY AcZ GyX GyY GyZ
                 String[] rawValues = inputLine.split(" ");
                 setRawValues(rawValues);
