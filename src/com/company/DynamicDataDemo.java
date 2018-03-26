@@ -130,7 +130,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(-1500.0, 1500.0);
+        axis.setRange(-1.0, 1.0);
         return result;
     }
 

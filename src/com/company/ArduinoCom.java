@@ -21,7 +21,7 @@ public class ArduinoCom implements SerialPortEventListener{
     private static OutputStream output = null;
     private static BufferedReader input;
     static SerialPort serialPort;
-    private static final String PUERTO = "COM4";
+    private static final String PUERTO = "COM5";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
     private JavaSocket sock;
@@ -88,9 +88,9 @@ public class ArduinoCom implements SerialPortEventListener{
             return;
         }
         try {
-            AcX.put(new Millisecond(), Float.valueOf(values[3]));
-            AcY.put(new Millisecond(), Float.valueOf(values[4]));
-            AcZ.put(new Millisecond(), Float.valueOf(values[5]));
+            AcX.put(new Millisecond(), (float)(0));
+            AcY.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[1]))));
+            AcZ.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[2]))));
         }finally{
 
         }
@@ -128,7 +128,11 @@ public class ArduinoCom implements SerialPortEventListener{
                         sock.writeToServer("setstartvalues_" + inputLine);
                         first = false;
                     } else {
-                        sock.writeToServer("data_" + inputLine);
+                        String[] str1 = inputLine.split(" ");
+                        if(str1.length == 11 && str1[0].length() > 1){
+                            sock.writeToServer("data_" + inputLine);
+                        }
+
                     }
                 }
                 // AcX AcY AcZ GyX GyY GyZ
