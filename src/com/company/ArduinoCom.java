@@ -88,9 +88,12 @@ public class ArduinoCom implements SerialPortEventListener{
             return;
         }
         try {
-            AcX.put(new Millisecond(), (float)(0));
+            AcX.put(new Millisecond(), (float)(0.5));
             AcY.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[1]))));
             AcZ.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[2]))));
+            //AcX.put(new Millisecond(), Float.valueOf(values[0]));
+            //AcY.put(new Millisecond(), Float.valueOf(values[1]));
+            //AcZ.put(new Millisecond(), Float.valueOf(values[2]));
         }finally{
 
         }
@@ -139,6 +142,7 @@ public class ArduinoCom implements SerialPortEventListener{
                 String[] rawValues = inputLine.split(" ");
                 setRawValues(rawValues);
             } catch (Exception e) {
+                n++;
                 System.err.println(e.toString());
             }
         }

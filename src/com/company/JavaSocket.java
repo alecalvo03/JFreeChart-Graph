@@ -11,7 +11,7 @@ import java.net.Socket;
 
 public class JavaSocket {
 
-    private String serverAddress = "192.168.1.2";
+    private String serverAddress = "192.168.100.8";
     Socket s;
 
     public JavaSocket() throws IOException {
