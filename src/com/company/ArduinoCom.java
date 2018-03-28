@@ -32,6 +32,8 @@ public class ArduinoCom implements SerialPortEventListener{
     private HashMap<Millisecond,Float> AcY = new HashMap<>();
     private HashMap<Millisecond,Float> AcZ = new HashMap<>();
 
+    private static int[] toGraph = {3, 4, 5};
+
     public void initialize() throws IOException {
         // Inicializar conexión con Arduino
         CommPortIdentifier puertoID = null;
@@ -88,12 +90,12 @@ public class ArduinoCom implements SerialPortEventListener{
             return;
         }
         try {
-            AcX.put(new Millisecond(), (float)(0.5));
-            AcY.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[1]))));
-            AcZ.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[2]))));
-            //AcX.put(new Millisecond(), Float.valueOf(values[0]));
-            //AcY.put(new Millisecond(), Float.valueOf(values[1]));
-            //AcZ.put(new Millisecond(), Float.valueOf(values[2]));
+            //AcX.put(new Millisecond(), (float)(0.5));
+            //AcY.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[1]))));
+            //AcZ.put(new Millisecond(), (float)(Math.sin(Math.PI/180 * Float.valueOf(values[2]))));
+            AcX.put(new Millisecond(), (Float.valueOf(values[toGraph[0]])));
+            AcY.put(new Millisecond(), (Float.valueOf(values[toGraph[1]])));
+            AcZ.put(new Millisecond(), (Float.valueOf(values[toGraph[2]])));
         }finally{
 
         }

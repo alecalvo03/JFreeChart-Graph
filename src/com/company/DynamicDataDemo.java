@@ -74,6 +74,8 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     private static TimeSeries PitchSeries;
     private static TimeSeries RollSeries;
 
+    private static int forScale1 = -2000;
+    private static int forScale2 = 2000;
     static ArduinoCom arduinocom;
 
     /** The most recent value added. */
@@ -130,7 +132,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(-1, 1);
+        axis.setRange(forScale1, forScale2);
         return result;
     }
 
