@@ -74,8 +74,25 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     private static TimeSeries PitchSeries;
     private static TimeSeries RollSeries;
 
-    private static int forScale1 = -2000;
-    private static int forScale2 = 2000;
+    private static TimeSeries AcxSeries;
+    private static TimeSeries AcySeries;
+    private static TimeSeries AczSeries;
+
+    private static TimeSeries thumbSeries;
+    private static TimeSeries indexSeries;
+    private static TimeSeries middleSeries;
+    private static TimeSeries ringSeries;
+    private static TimeSeries pinkySeries;
+
+    private static int angleScale1 = -200;
+    private static int angleScale2 = 200;
+
+    private static int acScale1 = -2000;
+    private static int acScale2 = -2000;
+
+    private static int fingerScale1 = -2000;
+    private static int fingerScale2 = -2000;
+
     static ArduinoCom arduinocom;
 
     /** The most recent value added. */
@@ -92,20 +109,45 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         YawSeries = new TimeSeries("Yaw Data", Millisecond.class);
         PitchSeries = new TimeSeries("Pitch Data", Millisecond.class);
         RollSeries = new TimeSeries("Roll Data", Millisecond.class);
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(YawSeries);
-        dataset.addSeries(PitchSeries);
-        dataset.addSeries(RollSeries);
-        final JFreeChart chart = createChart(dataset);
 
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        final JButton button = new JButton("Add New Data Item");
-        button.setActionCommand("ADD_DATA");
-        button.addActionListener(this);
+        AcxSeries = new TimeSeries("X Acceleration", Millisecond.class);
+        AcySeries = new TimeSeries("Y Acceleration", Millisecond.class);
+        AczSeries = new TimeSeries("Z Acceleration", Millisecond.class);
+
+        thumbSeries = new TimeSeries("Thumb", Millisecond.class);
+        indexSeries = new TimeSeries("Index", Millisecond.class);
+        middleSeries = new TimeSeries("Middle", Millisecond.class);
+        ringSeries = new TimeSeries("Ring", Millisecond.class);
+        pinkySeries = new TimeSeries("Pinky", Millisecond.class);
+
+        final TimeSeriesCollection datasetangles = new TimeSeriesCollection(YawSeries);
+        datasetangles.addSeries(PitchSeries);
+        datasetangles.addSeries(RollSeries);
+        final JFreeChart chartangles = createChart(datasetangles, "Angles Chart");
+
+        final TimeSeriesCollection datasetacc = new TimeSeriesCollection(AcxSeries);
+        datasetacc.addSeries(AcySeries);
+        datasetacc.addSeries(AczSeries);
+        final JFreeChart chartacc = createChart(datasetacc, "Acceleration Chart");
+
+        final TimeSeriesCollection datasetfinger = new TimeSeriesCollection(thumbSeries);
+        datasetfinger.addSeries(indexSeries);
+        datasetfinger.addSeries(middleSeries);
+        datasetfinger.addSeries(ringSeries);
+        datasetfinger.addSeries(pinkySeries);
+        final JFreeChart chartfinger = createChart(datasetfinger, "Finger Chart");
+
+        final ChartPanel chartPanel1 = new ChartPanel(chartangles);
+        final ChartPanel chartPanel2 = new ChartPanel(chartacc);
+        final ChartPanel chartPanel3 = new ChartPanel(chartfinger);
 
         final JPanel content = new JPanel(new BorderLayout());
-        content.add(chartPanel);
-        content.add(button, BorderLayout.SOUTH);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        content.add(chartPanel1, BorderLayout.NORTH);
+        chartPanel1.setPreferredSize(new java.awt.Dimension(500, 270));
+        content.add(chartPanel2, BorderLayout.CENTER);
+        chartPanel2.setPreferredSize(new java.awt.Dimension(500, 270));
+        content.add(chartPanel3, BorderLayout.SOUTH);
+        chartPanel3.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(content);
 
     }
@@ -117,9 +159,9 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      *
      * @return A sample chart.
      */
-    private JFreeChart createChart(final XYDataset dataset) {
+    private JFreeChart createChart(final XYDataset dataset, String title) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
-                "Dynamic Data Demo",
+                title,
                 "Time",
                 "Value",
                 dataset,
@@ -132,7 +174,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(forScale1, forScale2);
+        axis.setRange(angleScale1, angleScale2);
         return result;
     }
 
@@ -162,6 +204,17 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         }
     }
 
+    public static void addValues(HashMap hash, TimeSeries toAdd){
+        if (!hash.isEmpty()) {
+            Set set = hash.entrySet();
+            Iterator iterator = set.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry mentry = (Map.Entry) iterator.next();
+                toAdd.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
+            }
+        }
+    }
+
     /**
      * Starting point for the demonstration application.
      *
@@ -170,42 +223,39 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     public static void main(final String[] args) throws IOException {
         arduinocom = new ArduinoCom();
         arduinocom.initialize();
-        final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
+        final DynamicDataDemo demo = new DynamicDataDemo("DataGraphs");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
         Thread t = new Thread(() ->{
             while (true) {
-                HashMap Yaw = DynamicDataDemo.arduinocom.getAcX();
-                HashMap Pitch = DynamicDataDemo.arduinocom.getAcY();
-                HashMap Roll = DynamicDataDemo.arduinocom.getAcZ();
-                if (!Yaw.isEmpty()) {
-                    Set set = Yaw.entrySet();
-                    Iterator iterator = set.iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry mentry = (Map.Entry) iterator.next();
-                        //System.out.println(mentry.getValue());
-                        DynamicDataDemo.YawSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
-                    }
-                }
-                if (!Pitch.isEmpty()) {
-                    Set set = Pitch.entrySet();
-                    Iterator iterator = set.iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry mentry = (Map.Entry) iterator.next();
-                        //System.out.println(mentry.getValue());
-                        DynamicDataDemo.PitchSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
-                    }
-                }
-                if (!Roll.isEmpty()) {
-                    Set set = Roll.entrySet();
-                    Iterator iterator = set.iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry mentry = (Map.Entry) iterator.next();
-                        //System.out.println(mentry.getValue());
-                        DynamicDataDemo.RollSeries.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
-                    }
-                }
+                HashMap Yaw = DynamicDataDemo.arduinocom.getYaw();
+                HashMap Pitch = DynamicDataDemo.arduinocom.getPitch();
+                HashMap Roll = DynamicDataDemo.arduinocom.getRoll();
+
+                HashMap acX = DynamicDataDemo.arduinocom.getAcX();
+                HashMap acY = DynamicDataDemo.arduinocom.getAcY();
+                HashMap acZ = DynamicDataDemo.arduinocom.getAcZ();
+
+                HashMap thumb = DynamicDataDemo.arduinocom.getThumb();
+                HashMap index = DynamicDataDemo.arduinocom.getIndex();
+                HashMap middle = DynamicDataDemo.arduinocom.getMiddle();
+                HashMap ring = DynamicDataDemo.arduinocom.getRing();
+                HashMap pinky = DynamicDataDemo.arduinocom.getPinky();
+
+                addValues(Yaw,YawSeries);
+                addValues(Pitch,PitchSeries);
+                addValues(Roll,RollSeries);
+
+                addValues(acX,AcxSeries);
+                addValues(acY,AcySeries);
+                addValues(acZ,AczSeries);
+
+                addValues(thumb,thumbSeries);
+                addValues(index,indexSeries);
+                addValues(middle,middleSeries);
+                addValues(ring,ringSeries);
+                addValues(pinky,pinkySeries);
 
                 try {
                     Thread.sleep(100);
