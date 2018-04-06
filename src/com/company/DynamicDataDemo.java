@@ -88,10 +88,10 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     private static int angleScale2 = 200;
 
     private static int acScale1 = -2000;
-    private static int acScale2 = -2000;
+    private static int acScale2 = 2000;
 
-    private static int fingerScale1 = -2000;
-    private static int fingerScale2 = -2000;
+    private static int fingerScale1 = 300;
+    private static int fingerScale2 = 800;
 
     static ArduinoCom arduinocom;
 
@@ -123,19 +123,19 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         final TimeSeriesCollection datasetangles = new TimeSeriesCollection(YawSeries);
         datasetangles.addSeries(PitchSeries);
         datasetangles.addSeries(RollSeries);
-        final JFreeChart chartangles = createChart(datasetangles, "Angles Chart");
+        final JFreeChart chartangles = createChart(datasetangles, "Angles Chart", angleScale1, angleScale2);
 
         final TimeSeriesCollection datasetacc = new TimeSeriesCollection(AcxSeries);
         datasetacc.addSeries(AcySeries);
         datasetacc.addSeries(AczSeries);
-        final JFreeChart chartacc = createChart(datasetacc, "Acceleration Chart");
+        final JFreeChart chartacc = createChart(datasetacc, "Acceleration Chart", acScale1, acScale2);
 
         final TimeSeriesCollection datasetfinger = new TimeSeriesCollection(thumbSeries);
         datasetfinger.addSeries(indexSeries);
         datasetfinger.addSeries(middleSeries);
         datasetfinger.addSeries(ringSeries);
         datasetfinger.addSeries(pinkySeries);
-        final JFreeChart chartfinger = createChart(datasetfinger, "Finger Chart");
+        final JFreeChart chartfinger = createChart(datasetfinger, "Finger Chart", fingerScale1, fingerScale2);
 
         final ChartPanel chartPanel1 = new ChartPanel(chartangles);
         final ChartPanel chartPanel2 = new ChartPanel(chartacc);
@@ -159,7 +159,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      *
      * @return A sample chart.
      */
-    private JFreeChart createChart(final XYDataset dataset, String title) {
+    private JFreeChart createChart(final XYDataset dataset, String title, int scale1, int scale2) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
                 title,
                 "Time",
@@ -174,7 +174,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(angleScale1, angleScale2);
+        axis.setRange(scale1, scale2);
         return result;
     }
 
@@ -205,15 +205,25 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
     }
 
     public static void addValues(HashMap hash, TimeSeries toAdd){
+        addValues(hash,toAdd,false);
+    }
+
+    public static void addValues(HashMap hash, TimeSeries toAdd, boolean debug){
         if (!hash.isEmpty()) {
             Set set = hash.entrySet();
             Iterator iterator = set.iterator();
             while (iterator.hasNext()) {
                 Map.Entry mentry = (Map.Entry) iterator.next();
+                if (debug){
+                    System.out.print("Hay: ");
+                    System.out.println(mentry.getValue());
+                }
                 toAdd.add((Millisecond) mentry.getKey(), (Float) mentry.getValue());
             }
         }
     }
+
+
 
     /**
      * Starting point for the demonstration application.
