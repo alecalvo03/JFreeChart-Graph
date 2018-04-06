@@ -21,7 +21,7 @@ public class ArduinoCom implements SerialPortEventListener{
     private static OutputStream output = null;
     private static BufferedReader input;
     static SerialPort serialPort;
-    private static final String PUERTO = "COM9";
+    private static final String PUERTO = "COM4";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
     private JavaSocket sock;
@@ -46,7 +46,7 @@ public class ArduinoCom implements SerialPortEventListener{
         // Inicializar conexión con Arduino
         CommPortIdentifier puertoID = null;
         Enumeration puertoEnum = CommPortIdentifier.getPortIdentifiers();
-        //sock = new JavaSocket();
+        sock = new JavaSocket();
         while(puertoEnum.hasMoreElements()){
             CommPortIdentifier actual = (CommPortIdentifier) puertoEnum.nextElement();
             if (PUERTO.equals(actual.getName())){
@@ -189,7 +189,7 @@ public class ArduinoCom implements SerialPortEventListener{
             try {
                 String inputLine=input.readLine();
                 System.out.println(inputLine);
-                /*if(n == 0) {
+                if(n == 0) {
                     if (first){
                         sock.writeToServer("setstartvalues_" + inputLine);
                         first = false;
@@ -200,7 +200,7 @@ public class ArduinoCom implements SerialPortEventListener{
                         }
 
                     }
-                }*/
+                }
                 // AcX AcY AcZ GyX GyY GyZ
                 String[] rawValues = inputLine.split(" ");
                 setRawValues(rawValues);
