@@ -141,13 +141,15 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         final ChartPanel chartPanel2 = new ChartPanel(chartacc);
         final ChartPanel chartPanel3 = new ChartPanel(chartfinger);
 
-        final JPanel content = new JPanel(new BorderLayout());
-        content.add(chartPanel1, BorderLayout.NORTH);
+        final JPanel content = new JPanel();
+        content.add(chartPanel1);
         chartPanel1.setPreferredSize(new java.awt.Dimension(500, 270));
-        content.add(chartPanel2, BorderLayout.CENTER);
+        content.add(chartPanel2);
         chartPanel2.setPreferredSize(new java.awt.Dimension(500, 270));
-        content.add(chartPanel3, BorderLayout.SOUTH);
+        content.add(chartPanel3);
         chartPanel3.setPreferredSize(new java.awt.Dimension(500, 270));
+        content.setLayout(new BoxLayout(content,BoxLayout.Y_AXIS));
+
         setContentPane(content);
 
     }
@@ -221,8 +223,8 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      * @param args  ignored.
      */
     public static void main(final String[] args) throws IOException {
-        arduinocom = new ArduinoCom();
-        arduinocom.initialize();
+        //arduinocom = new ArduinoCom();
+        //arduinocom.initialize();
         final DynamicDataDemo demo = new DynamicDataDemo("DataGraphs");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
