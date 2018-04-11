@@ -21,11 +21,19 @@ public class ArduinoCom implements SerialPortEventListener{
     private static OutputStream output = null;
     private static BufferedReader input;
     static SerialPort serialPort;
-    private static final String PUERTO = "COM4";
+    private static final String PUERTO = "COM5";
     private static final int TIMEOUT = 2000;
     private static final int BAUD_RATE = 38400;
     private JavaSocket sock;
     private int n = 50;
+
+    private int pAc[] = {0,0,0};
+    private int thAc[] = {70,70,70};
+
+    private int pRes[] = {0,0,0,0,0};
+    private int thRes[] = {10,10,10,10,10};
+
+
     boolean first = true;
 
     private HashMap<Millisecond,Float> Yaw = new HashMap<>();
@@ -35,12 +43,16 @@ public class ArduinoCom implements SerialPortEventListener{
     private HashMap<Millisecond,Float> AcX = new HashMap<>();
     private HashMap<Millisecond,Float> AcY = new HashMap<>();
     private HashMap<Millisecond,Float> AcZ = new HashMap<>();
+    private List<HashMap<Millisecond,Float>> Acc = Arrays.asList(AcX,AcY,AcZ);
+
 
     private HashMap<Millisecond,Float> Thumb = new HashMap<>();
     private HashMap<Millisecond,Float> Index = new HashMap<>();
     private HashMap<Millisecond,Float> Middle = new HashMap<>();
     private HashMap<Millisecond,Float> Ring = new HashMap<>();
     private HashMap<Millisecond,Float> Pinky = new HashMap<>();
+
+    private List<HashMap<Millisecond,Float>> Finger = Arrays.asList(Thumb,Index,Middle,Ring,Pinky);
 
     public void initialize() throws IOException {
         // Inicializar conexión con Arduino
@@ -101,14 +113,30 @@ public class ArduinoCom implements SerialPortEventListener{
             Yaw.put(new Millisecond(), Float.valueOf(values[0]));
             Pitch.put(new Millisecond(), Float.valueOf(values[1]));
             Roll.put(new Millisecond(), Float.valueOf(values[2]));
-            AcX.put(new Millisecond(), (Float.valueOf(values[3])));
-            AcY.put(new Millisecond(), (Float.valueOf(values[4])));
-            AcZ.put(new Millisecond(), (Float.valueOf(values[5])));
-            Thumb.put(new Millisecond(), (Float.valueOf(values[6])));
-            Index.put(new Millisecond(), (Float.valueOf(values[7])));
-            Middle.put(new Millisecond(), (Float.valueOf(values[8])));
-            Ring.put(new Millisecond(), (Float.valueOf(values[9])));
-            Pinky.put(new Millisecond(), (Float.valueOf(values[10])));
+            int i = 0;
+            for (HashMap<Millisecond,Float> acc : Acc ) {
+                float cAcc = Float.valueOf(values[i+3]);
+                if (Math.abs(pAc[i] - cAcc) > thAc[i]) {
+                    acc.put(new Millisecond(), cAcc);
+                    pAc[i] = (int) cAcc;
+                } else {
+                    acc.put(new Millisecond(), (float) pAc[i]);
+                }
+                i++;
+            }
+
+            i = 0;
+            for (HashMap<Millisecond,Float> finger : Finger ) {
+                float cFinger = Float.valueOf(values[i+6]);
+                if (Math.abs(pRes[i] - cFinger) > thRes[i]) {
+                    finger.put(new Millisecond(), cFinger);
+                    pRes[i] = (int) cFinger;
+                } else {
+                    finger.put(new Millisecond(), (float) pRes[i]);
+                }
+                i++;
+            }
+
         }finally{
 
         }
@@ -133,20 +161,20 @@ public class ArduinoCom implements SerialPortEventListener{
     }
 
     public synchronized HashMap getAcX(){
-        HashMap temp = (HashMap) AcX.clone();
-        AcX.clear();
+        HashMap temp = (HashMap) Acc.get(0).clone();
+        Acc.get(0).clear();
         return temp;
     }
 
     public synchronized HashMap getAcY(){
-        HashMap temp = (HashMap) AcY.clone();
-        AcY.clear();
+        HashMap temp = (HashMap) Acc.get(1).clone();
+        Acc.get(1).clear();
         return temp;
     }
 
     public synchronized HashMap getAcZ(){
-        HashMap temp = (HashMap) AcZ.clone();
-        AcZ.clear();
+        HashMap temp = (HashMap) Acc.get(2).clone();
+        Acc.get(2).clear();
         return temp;
     }
 
@@ -189,21 +217,23 @@ public class ArduinoCom implements SerialPortEventListener{
             try {
                 String inputLine=input.readLine();
                 System.out.println(inputLine);
+                String[] rawValues = inputLine.split(" ");
+                setRawValues(rawValues);
                 if(n == 0) {
                     if (first){
                         sock.writeToServer("setstartvalues_" + inputLine);
                         first = false;
                     } else {
                         String[] str1 = inputLine.split(" ");
-                        if(str1.length == 11 && str1[0].length() > 1){
-                            sock.writeToServer("data_" + inputLine);
+                        if(str1.length == 13 && str1[0].length() > 1){
+                            sock.writeToServer("data_" + str1[0] + " " + str1[1] + " " + str1[2] + " " +
+                                                            pAc[0]+ " " + pAc[1] + " " + pAc[2] + " " +
+                                                            pRes[0] + " " + pRes[1] + " " + pRes[2] + " " + pRes[3] + " " + pRes[4]
+                                                            +" " + str1[11] + " " + str1[12]);
                         }
 
                     }
                 }
-                // AcX AcY AcZ GyX GyY GyZ
-                String[] rawValues = inputLine.split(" ");
-                setRawValues(rawValues);
             } catch (Exception e) {
                 n++;
                 System.err.println(e.toString());

@@ -123,19 +123,19 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         final TimeSeriesCollection datasetangles = new TimeSeriesCollection(YawSeries);
         datasetangles.addSeries(PitchSeries);
         datasetangles.addSeries(RollSeries);
-        final JFreeChart chartangles = createChart(datasetangles, "Angles Chart", angleScale1, angleScale2);
+        final JFreeChart chartangles = createChart(datasetangles, "Angles Chart", "Angle (Degrees)",angleScale1, angleScale2);
 
         final TimeSeriesCollection datasetacc = new TimeSeriesCollection(AcxSeries);
         datasetacc.addSeries(AcySeries);
         datasetacc.addSeries(AczSeries);
-        final JFreeChart chartacc = createChart(datasetacc, "Acceleration Chart", acScale1, acScale2);
+        final JFreeChart chartacc = createChart(datasetacc, "Acceleration Chart", "Acceleration (milli g's)", acScale1, acScale2);
 
         final TimeSeriesCollection datasetfinger = new TimeSeriesCollection(thumbSeries);
         datasetfinger.addSeries(indexSeries);
         datasetfinger.addSeries(middleSeries);
         datasetfinger.addSeries(ringSeries);
         datasetfinger.addSeries(pinkySeries);
-        final JFreeChart chartfinger = createChart(datasetfinger, "Finger Chart", fingerScale1, fingerScale2);
+        final JFreeChart chartfinger = createChart(datasetfinger, "Finger Chart", "Resistance (Ohms)", fingerScale1, fingerScale2);
 
         final ChartPanel chartPanel1 = new ChartPanel(chartangles);
         final ChartPanel chartPanel2 = new ChartPanel(chartacc);
@@ -161,11 +161,11 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      *
      * @return A sample chart.
      */
-    private JFreeChart createChart(final XYDataset dataset, String title, int scale1, int scale2) {
+    private JFreeChart createChart(final XYDataset dataset, String title, String yaxis, int scale1, int scale2) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
                 title,
-                "Time",
-                "Value",
+                "Time (Hours:Minutes:Seconds)",
+                yaxis,
                 dataset,
                 true,
                 true,
@@ -233,8 +233,8 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
      * @param args  ignored.
      */
     public static void main(final String[] args) throws IOException {
-        //arduinocom = new ArduinoCom();
-        //arduinocom.initialize();
+        arduinocom = new ArduinoCom();
+        arduinocom.initialize();
         final DynamicDataDemo demo = new DynamicDataDemo("DataGraphs");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
